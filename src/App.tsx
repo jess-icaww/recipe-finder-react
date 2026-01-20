@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Navbar } from "./components/Navbar";
+import { Navbar } from "./components/Navbar.js";
 import { Search } from "lucide-react";
-import "../../config.js"
+import { Card } from "./components/Card";
 
 function App() {
   const [searchInput, setSearchInput] = useState("");
@@ -9,18 +9,21 @@ function App() {
 
   async function searchRecipes() {
     if (searchInput.trim() === "" || searchInput.length === 0) return;
-    else {
+    
+    const API_KEY = import.meta.env.VITE_SPOONACULAR_KEY;
       let url = `https://api.spoonacular.com/recipes/complexSearch?query=${searchInput}&addRecipeInformation=true&apiKey=${API_KEY}`;
 
       const response = await fetch(url);
       const data = await response.json();
       console.log(data.results);
+
+      setRecipes(data.results);
     }
-  }
 
   function handleSearchChange(e) {
     setSearchInput(e.target.value);
   }
+  
 
   return (
     <>
@@ -31,14 +34,11 @@ function App() {
     <div className="box">
       <div id="search-box">
         <input type="text" id="search-input" placeholder="Search for recipes..." value={searchInput} onChange={handleSearchChange} required />
-        <button id="search-btn" className="icon">
+        <button id="search-btn" className="icon" onClick={() => searchRecipes()}>
           <i className="fa-solid flex justify-center "><Search /></i>
         </button>
       </div>
     </div>
-
-    <p>{searchInput}</p>
-
 
     <div id="recipe-container">
       <div className="dropdown-items">
@@ -62,7 +62,16 @@ function App() {
         </select>
       </div>
 
-      <div className="results-grid" id="results-grid"></div>
+      <div className="results-grid" id="results-grid">
+      {recipes.map((recipe) => (
+        <Card
+        title= {recipe.title}
+        image = {recipe.image}
+        servings = {recipe.servings}
+        id = {recipe.id}
+        />
+      ))}
+      </div>
     </div>
   </div>
     </>
